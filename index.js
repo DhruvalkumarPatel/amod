@@ -1,7 +1,29 @@
 // load the things we need
 var express = require('express');
 var app = express();
+const bodyParser = require("body-parser");
+const user = require("./routes/user");
+const Usermodel = require("./model/User");
+const BusinesslistModel = require("./model/BusinessListModel");
 
+
+const InitialMongoServer = require("./config/db");
+const mongoose = require("mongoose");
+const mongoURI = "mongodb+srv://Dhruval:Mataji@dhruval.keooz.mongodb.net/Dhruval?retryWrites=true&w=majority";
+
+
+mongoose.connect(mongoURI,{
+        useNewUrlParser: true,
+        useCreateIndex: true,
+        useUnifiedTopology: true,
+        useFindAndModify: false,
+});
+
+const connect1 = mongoose.connect1;
+connect1.once("open",() => {
+    console.log("connected to dhruval MongoDB");
+}
+);
 // set the view engine to ejs
 app.set('view engine', 'ejs');
 
@@ -11,20 +33,42 @@ app.use('/js', express.static(__dirname + 'public/js'))
 app.use('/images', express.static(__dirname + 'public/images'))
 app.use('/fonts', express.static(__dirname + 'public/fonts'))
 
-// use res.render to load up an ejs view file
+app.use(bodyParser.urlencoded({extended: true}));
 
-// index page
+app.use("/user", user);
+
+// localhost will load 
 app.get('/', function(req, res) {
     res.render('pages/home');
 });
 
-// about page
+app.get('/businesslist', async function(req,res) {
+    try{
+        const businesslistmodel = await BusinessListModel.find()
+        res.render('pages/businesslist',{'businesslists': businesslistmodel});
+    }
+    catch(error){
+        console.log({error})
+    }
+});
+
+app.post('/businesslist', async function(req,res){
+
+})
+
+app.get('/home', function(req, res) {
+    res.render('pages/home');
+});
 app.get('/about', function(req, res) {
     res.render('pages/about');
 });
 
 app.get('/project', function(req, res) {
     res.render('pages/project');
+});
+
+app.get('/update', function(req, res) {
+    res.render('pages/update');
 });
 
 app.get('/service', function(req, res) {
